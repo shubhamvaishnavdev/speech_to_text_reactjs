@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { BsFillMicFill, BsFillMicMuteFill } from 'react-icons/bs';
-import CopyText from './CopyText';
+import CopyText from './CopyText.jsx';
 
 
 
@@ -23,19 +23,13 @@ const Speechbox = () => {
   const [note, setNote] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
-  useEffect(() => {
-    startRecordController();
-  }, [isRecording]);
-
-  //listen to the speech and then convert the result to text
-  const startRecordController = () => {
+    //listen to the speech and then convert the result to text
+  const startRecordController = useCallback(() => {
     if (isRecording) {
       microphone.start();
     } else {
       microphone.stop();
     }
-
-
     microphone.onresult = (event) => {
       let recordingResult = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -51,7 +45,11 @@ const Speechbox = () => {
     microphone.onerror = (event) => {
       console.log('event.error:', event.error);
     };
-  };
+  },[isRecording]);
+
+  useEffect(() => {
+    startRecordController();
+  }, [isRecording, startRecordController]);
 
 
   const handleTextAreaClick = () => {
@@ -63,7 +61,7 @@ const Speechbox = () => {
   };
 
   return (
-    <div className='h-auto w-auto'>
+    <div className='h-auto w-auto flex flex-col flex-wrap'>
 
         <textarea
           name=""
@@ -75,7 +73,7 @@ const Speechbox = () => {
           className='h-[20rem] w-[22rem] p-4 text-justify bg-gray-200 text-xl'
         ></textarea>
      
-      <div className=" flex flex-wrap gap-8 justify-center items-center">
+      <div className=" flex flex-wrap gap-8 justify-center items-center mt-2">
         <button onClick={() => setisRecording((prevState) => !prevState)} className={`p-4 rounded-full  ${isRecording ? 'bg-red-500' : 'bg-yellow-500'}`}>
           {isRecording ? (
             <BsFillMicMuteFill />
